@@ -1,0 +1,10 @@
+{
+  "expo": {
+    "name": "7words",
+    "slug": "7words",
+    "version": "1.0.0",
+    "assetBundlePatterns": [
+      "**/*"
+    ]
+  }
+}
