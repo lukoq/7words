@@ -5,7 +5,7 @@ import CardContent from '@mui/material/CardContent';
 import Grid from '@mui/material/Unstable_Grid2';
 import Avatar from '@mui/material/Avatar';
 import { yellow } from '@mui/material/colors';
-import { Box, TextField, Button, List, ListItem, ListItemText, Typography } from '@mui/material';
+import { Box, TextField, Button, List, ListItem, ListItemText, Typography, Divider } from '@mui/material';
 
 const ariaLabel = { 'aria-label': 'description' };
 
@@ -39,7 +39,7 @@ export default function App() {
   const [items, setItems] = React.useState([]);
 
   const handleChange = (event) => {
-    setInputText(event.target.value);
+    setInputText(event.target.value.toUpperCase());
   };
 
   const handleAddItem = () => {
@@ -56,10 +56,10 @@ export default function App() {
   return (
     <View style={styles.container}>
       <View style={styles.left}></View>
+      <View style={styles.center}>
         <Box
           maxWidth={500} // Set a maximum width of 500px
           maxHeight={800}
-          style={{alignSelf: 'center'}}
           >
           <Grid container spacing={2}>
             <Grid xs={3}>
@@ -101,6 +101,7 @@ export default function App() {
               <BasicCard/>
             </Grid>
           </Grid>
+
           <View style={{paddingTop: 32, flexDirection: 'row', gap: 32}}> 
             <TextField
               label="Enter Item"
@@ -118,24 +119,37 @@ export default function App() {
             </Button>
           </View>
         </Box>
+      </View>
       <View style={styles.right}>
+        
       <Card 
         variant="outlined"
-        sx={{bgcolor: yellow[50], height: '100%', width: '100%'}}
+        sx={{bgcolor: yellow[50], width: '60%', minHeight: 420}}
         >
         <CardContent>
           <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>
-            You have found 2 words
+            You have found {items.length} words
           </Typography>
           <List sx={{ width: '100%'}}>
             {items.map((item) => (
-              <ListItem key={item}>
-                  <ListItemText primary={item} />
-              </ListItem>
+              <React.Fragment key={item}>
+                <ListItem 
+                  key={item}
+                  secondaryAction={
+                    <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>
+                        42
+                    </Typography>
+                  }
+                >
+                    <ListItemText primary={item} />
+                </ListItem>
+                {<Divider />}
+              </React.Fragment>
             ))}
           </List>
         </CardContent>
         </Card>
+        
       </View>
     </View>
   )
@@ -150,8 +164,13 @@ const styles = StyleSheet.create({
     flex: 1, // Takes 1/3 of the screen
     margin: 32,
   },
+  center: {
+    paddingTop: 64,
+  },
   right: {
     flex: 1,
-    margin: 32,
+    flexDirection: 'column',
+    paddingVertical: 64,
+    alignItems: 'center'
   },
 });
