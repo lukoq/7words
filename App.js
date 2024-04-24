@@ -39,6 +39,7 @@ export default function App() {
   const [inputText, setInputText] = useState('');
   const [items, setItems] = useState([]);
   const [letters, setLetters] = useState(['A', 'A', 'A', 'A', 'A', 'A', 'A', 'A'])
+  const [check, setCheck] = useState(false)
 
   useEffect(() => {
     // This code runs when the component mounts
@@ -51,10 +52,13 @@ export default function App() {
   };
 
   const handleAddItem = () => {
-    getLetters();
-    if (inputText.trim()) { // Check if input is not empty
-      setItems([...items, inputText]);
-      setInputText(''); 
+    check_word();
+    if(check){
+      getLetters();
+      if (inputText.trim()) { // Check if input is not empty
+        setItems([...items, inputText]);
+        setInputText(''); 
+      }
     }
   };
 
@@ -75,6 +79,32 @@ export default function App() {
       console.error(error);
     }
   };
+
+  const check_word = async () => {
+    try {
+        await fetch(
+            `${config.apiURL}/check_word`, //server address
+            {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json',},
+                body: JSON.stringify({word: inputText}),
+            })
+            .then(response => {
+                response.json()
+                    .then(data => {
+                        if (data.message) {
+                            // Handle error case
+                            setCheck(false)
+                        } else {
+                            // Handle success case
+                            setCheck(true)
+                        }
+                    });
+            })
+    } catch(error) {
+        console.error(error);
+    }
+}
 
   return (
     <View style={styles.container}>
@@ -179,9 +209,9 @@ export default function App() {
             </Typography>
             <List sx={{ width: '100%'}}>
               {items.map((item) => (
-                <React.Fragment key={item}>
+                <React.Fragment key={item.key}>
                   <ListItem 
-                    key={item}
+                    key={item.key}
                     secondaryAction={
                       <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>
                           42
