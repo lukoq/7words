@@ -40,6 +40,11 @@ export default function App() {
   const [items, setItems] = useState([]);
   const [letters, setLetters] = useState(['A', 'A', 'A', 'A', 'A', 'A', 'A', 'A'])
 
+  useEffect(() => {
+    // This code runs when the component mounts
+    getLetters();
+  }, []); // empty dependency array means it only runs once
+
 
   const handleChange = (event) => {
     setInputText(event.target.value.toUpperCase());
@@ -50,6 +55,12 @@ export default function App() {
     if (inputText.trim()) { // Check if input is not empty
       setItems([...items, inputText]);
       setInputText(''); 
+    }
+  };
+
+  const handleKeyDown = (event) => {
+    if (event.key === 'Enter') {
+      handleAddItem();
     }
   };
 
@@ -140,6 +151,7 @@ export default function App() {
                 variant="standard"
                 value={inputText}
                 onChange={handleChange}
+                onKeyDown={handleKeyDown}
                 sx={{
                   width: '80%', 
                   '& .MuiInputBase-input': { fontWeight: 'bold', fontSize: '32px' }
