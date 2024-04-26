@@ -17,7 +17,11 @@ const BasicCard = ({ value }) => {
       <CardContent style={{paddingBottom: 5, paddingRight: 5, backgroundColor: yellow[100]}}>
           <Text style={{fontSize: 64}}>{value}</Text>
           <View>
-            <Avatar style={{alignSelf: 'flex-end'}} sx={{ bgcolor: yellow[50], color: 'black' }}>+1</Avatar>
+              {
+                bonus(value) > 0 ?
+                <Avatar style={{alignSelf: 'flex-end'}} sx={{ bgcolor: yellow[50], color: 'black' }}>+{bonus(value)}</Avatar> : 
+                <Avatar style={{alignSelf: 'flex-end'}} sx={{ bgcolor: yellow[100], color: yellow[100] }}/>
+              }
           </View>
       </CardContent>
     </Card>
@@ -33,13 +37,24 @@ const PointCard = ({ value }) => {
   )
 }
 
+function bonus(value) {
+  const onepointBonus = new Set(['B', 'J', 'K', 'P', 'V', 'Y']);
+  const twopointsBonus = new Set(['Q', 'Z', 'X']);
+  if(onepointBonus.has(value)){
+    return 1
+  }else if(twopointsBonus.has(value)){
+    return 2
+  }
+
+  return 0
+}
+
 
 export default function App() {
 
   const [inputText, setInputText] = useState('');
   const [items, setItems] = useState([]);
   const [letters, setLetters] = useState(['A', 'A', 'A', 'A', 'A', 'A', 'A', 'A'])
-  const [check, setCheck] = useState(false)
 
   useEffect(() => {
     // This code runs when the component mounts
@@ -51,22 +66,16 @@ export default function App() {
     setInputText(event.target.value.toUpperCase());
   };
 
-  const handleAddItem = () => {
-    check_word();
-    if(check){
+  const handleAddItem = async () => {
+    const checkResult = await check_word(inputText);
+    console.log(checkResult)
+    if (checkResult) { // Check if input is not empty
+      setItems([...items, inputText]);
+      setInputText('');
       getLetters();
-      if (inputText.trim()) { // Check if input is not empty
-        setItems([...items, inputText]);
-        setInputText(''); 
-      }
     }
   };
 
-  const handleKeyDown = (event) => {
-    if (event.key === 'Enter') {
-      handleAddItem();
-    }
-  };
 
   const getLetters = async () => {
     try {
@@ -80,31 +89,33 @@ export default function App() {
     }
   };
 
-  const check_word = async () => {
+  async function check_word(inputText) {
     try {
-        await fetch(
-            `${config.apiURL}/check_word`, //server address
-            {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json',},
-                body: JSON.stringify({word: inputText}),
-            })
-            .then(response => {
-                response.json()
-                    .then(data => {
-                        if (data.message) {
-                            // Handle error case
-                            setCheck(false)
-                        } else {
-                            // Handle success case
-                            setCheck(true)
-                        }
-                    });
-            })
-    } catch(error) {
-        console.error(error);
+      const response = await fetch(
+        `${config.apiURL}/check_word`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ word: inputText }),
+        }
+      );
+  
+      const data = await response.json();
+  
+      if (typeof data === 'string') {
+        console.error(data);
+        return false;
+      } else if (typeof data === 'boolean') {
+        return data;
+      } else {
+        console.error('Unexpected data format:', data);
+        return false;
+      }
+    } catch (error) {
+      console.error(error);
+      return false; // Indicate error during process
     }
-}
+  }
 
   return (
     <View style={styles.container}>
@@ -181,7 +192,6 @@ export default function App() {
                 variant="standard"
                 value={inputText}
                 onChange={handleChange}
-                onKeyDown={handleKeyDown}
                 sx={{
                   width: '80%', 
                   '& .MuiInputBase-input': { fontWeight: 'bold', fontSize: '32px' }
