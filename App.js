@@ -68,9 +68,8 @@ export default function App() {
 
   const handleAddItem = async () => {
     const checkResult = await check_word(inputText);
-    console.log(checkResult)
     if (checkResult) { // Check if input is not empty
-      setItems([...items, inputText]);
+      setItems([...items, {word: inputText, score: count_points(inputText)}]);
       setInputText('');
       getLetters();
     }
@@ -88,6 +87,42 @@ export default function App() {
       console.error(error);
     }
   };
+
+  function removeVowels(text) {
+    const consonants = [...text].filter(char => !['A', 'E', 'I', 'O', 'U'].includes(char));
+    return consonants;
+  }
+
+  function count_points(inputText) {
+    const word = removeVowels(inputText);
+    let lettersArr = [...letters];
+    let score = 0;
+    for(let i = 0; i < word.length; i++){
+      for(let j = 7 ; j>=0; j--){
+        console.log(word[i])
+        console.log(lettersArr)
+        if(word[i] === lettersArr[j]){
+          if(j<2){
+            score += 2;
+          }
+          else if(j<4){
+            score += 3;
+          }
+          else if(j<6){
+            score += 4;
+          }
+          else if(j<8){
+            score += 5;
+          }
+          lettersArr[j] = 'A'
+          break;
+        }
+      }
+    }
+    console.log(score)
+    return score;
+  }
+  
 
   async function check_word(inputText) {
     try {
@@ -165,22 +200,22 @@ export default function App() {
                <BasicCard value={letters[0]} />
               </Grid>
               <Grid xs={3}>
-                <BasicCard value={letters[1]} />
-              </Grid>
-              <Grid xs={3}>
                 <BasicCard value={letters[2]} />
-              </Grid>
-              <Grid xs={3}>
-                <BasicCard value={letters[3]} />
               </Grid>
               <Grid xs={3}>
                 <BasicCard value={letters[4]} />
               </Grid>
               <Grid xs={3}>
-                <BasicCard value={letters[5]} />
+                <BasicCard value={letters[6]} />
               </Grid>
               <Grid xs={3}>
-                <BasicCard value={letters[6]} />
+                <BasicCard value={letters[1]} />
+              </Grid>
+              <Grid xs={3}>
+                <BasicCard value={letters[3]} />
+              </Grid>
+              <Grid xs={3}>
+                <BasicCard value={letters[5]} />
               </Grid>
               <Grid xs={3}>
                 <BasicCard value={letters[7]} />
@@ -224,11 +259,11 @@ export default function App() {
                     key={item.key}
                     secondaryAction={
                       <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>
-                          42
+                          {item.score}
                       </Typography>
                     }
                   >
-                      <ListItemText primary={item} />
+                      <ListItemText primary={item.word} />
                   </ListItem>
                   {<Divider />}
                 </React.Fragment>
